@@ -5,14 +5,13 @@ public class TrapScript : MonoBehaviour
 {
     public float bounceForce = 10f;
     public int damage = 1;
+    public Vector2 knockback = new Vector2(6f, 4f); // push & pop
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void Reset()
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            HandlePlayerBounce(collision.gameObject);
-            Debug.Log("Same Tag as expected: Player");
-        }
+        // Ensure this collider is a trigger so OnTriggerEnter2D fires
+        var col = GetComponent<Collider2D>();
+        col.isTrigger = true;
     }
 
     private void HandlePlayerBounce(GameObject player)
@@ -23,16 +22,10 @@ public class TrapScript : MonoBehaviour
 
         if (rb)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-
-            //apply bounce force
-            rb.AddForce(Vector2.up * bounceForce, ForceMode2D.Impulse);
-            Debug.Log("Jump!!!");
-            anim.SetTrigger("jump");
-            //parameter for animation
-
-
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+            float dir = Mathf.Sign(other.transform.position.x - transform.position.x);
+            if (dir == 0) dir = 1f;
+            rb.AddForce(new Vector2(knockback.x * dir, knockback.y), ForceMode2D.Impulse);
         }
     }
-
 }
